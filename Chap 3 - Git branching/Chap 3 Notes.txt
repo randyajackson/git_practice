@@ -1,0 +1,31 @@
+Branching means you diverge from the main line of development and continue to do work without messing with that main line.
+
+Git doesn’t store data as a series of changesets or differences, but instead as a series of snapshots
+
+When you make a commit, Git stores a commit object that contains a pointer to the snapshot of the content you staged.
+Contains:
+author's name
+email address
+message
+pointer to the commits before this commit (parent)
+
+When you create a commit, Git checksums each subdirectory and stores them as a tree object in the Git repository
+Then it generates a commit object equipped with metadata and a pointer to the root project tree.
+
+
+git add README test.rb LICENSE
+git commit -m 'The initial commit of my project'
+
+after adding 3 files ( README, test.rb, LICENSE)
+
+Git repositoory now contains:
+3 blobs ( version of the file in the Git repository )
+one tree that lists the content of the directory and specifies which file names are stored as which blobs
+one commit object with the pointer to the root tree and commit metadata
+
+the next time you commit, the next commit has a pointer to the commit before it
+
+a branch in Git is a moveable pointer to one of these commits.
+
+Default branch in Git = Master
+

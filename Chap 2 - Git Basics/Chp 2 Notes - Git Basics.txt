@@ -1,0 +1,362 @@
+git init
+creates a new subdirectory named .git that contains all of your necessary repository files — a Git repository skeleton.
+
+each file in your working directory can be in one of two states: tracked or untracked. Tracked files are files that were 
+in the last snapshot; they can be unmodified, modified, or staged. 
+In short, tracked files are files that Git knows about.
+
+changes are staged as files are changed
+
+The main tool you use to determine which files are in which state is the git status command
+
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        readme.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+untracked means that Git sees a file you didn’t have in the previous snapshot (commit)
+Git won’t start including it in your commit snapshots until you explicitly tell it to do so.
+
+In order to begin tracking a new file, you use the command git add
+
+git add readme.txt
+
+git status On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+        new file:   readme.txt
+
+git add is a multipurpose command — you use it to begin tracking new files, to stage files, 
+and to do other things like marking merge-conflicted files as resolved.
+
+It may be helpful to think of it more as “add precisely this content to the next commit” 
+rather than “add this file to the project”.
+
+It turns out that Git stages a file exactly as it is when you run the git add command.
+If you modify a file after you run git add, you have to run git add again to stage the latest version of the file:
+
+git status -s is a short form of the status
+
+A = added
+M = modified
+?? = not tracked
+.gitignore
+
+git commit opens an editor with:
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+#
+# Initial commit
+#
+# Changes to be committed:
+#	new file:   readme.txt
+#
+
+When you exit the editor, Git creates your commit with that commit message (with the comments and diff stripped out).
+
+git commit -m "first commit" shorthand commit
+
+Every time you perform a commit, you’re recording a snapshot of your project that you can revert to or compare to later.
+
+Adding the -a option to the git commit command makes
+Git automatically stage every file that is already tracked before doing the commit, letting you skip the git add part
+
+git commit -a -m "commit message here"
+
+git rm readme.txt
+removes the file from the staging area and the working directory
+
+git rm --cached readme.txt
+removes the file from the staging area only
+
+If you want to rename a file in Git, you can run something like:
+git mv file_from file_to
+
+git log
+for commit history
+
+author: originally created the work
+committer: last person to commit changes
+
+git log is a way to query the commit history
+
+If you want to redo that commit, make the additional changes 
+you forgot, stage them, and commit again using the --amend option:
+git commit --amend
+
+when you’re amending your last commit, you’re not so much fixing it 
+as replacing it entirely with a new, improved commit that pushes the old commit 
+out of the way and puts the new commit in its place.
+
+
+working with stage area
+-------------------
+git reset readme.txt
+unstages readme.txt
+
+git checkout -- <file> is a dangerous command. Any local changes you made to that file are gone
+
+if you would like to keep the changes you’ve made to that file but still 
+need to get it out of the way for now, we’ll go over stashing and branching
+
+anything that is committed in Git can almost always be recovered
+
+To see which remote servers you have configured, you can run the git remote command
+
+origin — that is the default name Git gives to the server you cloned from
+
+To add a new remote Git repository as a shortname you can reference easily, run git remote add <shortname> <url>:
+
+git remote add second_point https://github.com/randyajackson/git_practice.git
+
+Now you can use the string second_point on the command line in lieu of the whole URL
+
+git fetch second_point
+From https://github.com/randyajackson/git_practice
+ * [new branch]      master     -> second_point/master
+
+second_point master branch is now accessible locally as second_point/master — you can merge it into 
+one of your branches, or you can check out a local branch at that point if you want to inspect it.
+
+to get data from your remote projects, you can run
+
+git fetch <remote>
+
+The command goes out to that remote project and pulls down all the data from that remote project that you don’t have yet.
+
+If you clone a repository, the command automatically adds that remote repository under the name “origin”. 
+So, git fetch origin fetches any new work that has been pushed to that server since you cloned (or last fetched from) it.
+
+the git fetch command only downloads the data to your local repository — it doesn’t automatically 
+merge it with any of your work or modify what you’re currently working on. You have to merge
+it manually into your work when you’re ready.
+
+If your current branch is set up to track a remote branch you can use the git pull command to 
+automatically fetch and then merge that remote branch into your current branch.
+
+When you have your project at a point that you want to share, you have to push it upstream.
+
+This command works only if you cloned from a server to which you have write access and if 
+nobody has pushed in the meantime.
+
+If you and someone else clone at the same time and they push upstream
+and then you push upstream, your push will rightly be rejected. 
+You’ll have to fetch their work first and incorporate it into yours before you’ll be allowed to push
+
+If you want to see more information about a particular remote, you can use the git remote show <remote>
+
+git remote rename to change a remote’s shortname
+
+git remote rename second_point second
+git remote
+origin
+second
+
+git remote remove second
+will remove the remote
+
+listing tags:
+
+$ git tag
+v1.0
+v2.0
+
+$ git tag -l "v1.8.5*"
+v1.8.5
+v1.8.5-rc0
+v1.8.5-rc1
+v1.8.5-rc2
+v1.8.5-rc3
+
+Git supports two types of tags: lightweight and annotated.
+
+A lightweight tag is very much like a branch that doesn’t change — it’s just a pointer to a specific commit.
+
+annotated tags
+------------
+git tag -a v1.0 -m "first tag"
+git tag
+v1.0
+
+git show v1.0
+
+tag v1.0
+Tagger: randyajackson <rajackson.dev@gmail.com>
+Date:   Tue Oct 29 10:25:30 2019 -0600
+
+first tag
+
+commit 00a7e781c6a7841e27a8c80ef39282fe335ab65a (HEAD -> master, tag: v1.0, second/master, origin/master)
+Author: randyajackson <rajackson.dev@gmail.com>
+Date:   Tue Oct 29 09:42:57 2019 -0600
+
+    initial commit
+
+diff --git a/new_file.txt b/new_file.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/readme.txt b/readme.txt
+new file mode 100644
+index 0000000..e69de29
+
+lightweight tags
+-------------
+git tag v1.4-lw
+git tag
+
+git show v1.4-lw
+commit ca82a6dff817ec66f44342007202690a93763949
+Author: Scott Chacon <schacon@gee-mail.com>
+Date:   Mon Mar 17 21:52:11 2008 -0700
+
+    changed the version number
+
+
+tagging later
+----------
+git log --pretty=oneline
+15027957951b64cf874c3557a0f3547bd83b3ff6 Merge branch 'experiment'
+a6b4c97498bd301d84096da251c98a07c7723e65 beginning write support
+0d52aaab4479697da7686c15f77a3d64d9165190 one more thing
+6d52a271eda8725415634dd79daabbc4d9b6008e Merge branch 'experiment'
+0b7434d86859cc7b8c3d5e1dddfed66ff742fcbc added a commit function
+4682c3261057305bdd616e23b64b0857d832627b added a todo file
+166ae0c4d3f420721acbb115cc33848dfcc2121a started write support
+9fceb02d0ae598e95dc970b74767f19372d61af8 updated rakefile
+964f16d36dfccde844893cac5b347e7b3d44abbc commit the todo
+8a5cbc430f1a9c3d00faaeffd07798508422908a updated readme
+
+say you need a version at updated rakefile
+
+git tag -a v1.2 9fceb02d0ae598e95dc970b74767f19372d61af8
+
+
+--------------------------------------------------------------
+
+By default, the git push command doesn’t transfer tags to remote servers.
+
+to push them use
+
+git push <remote> <version>
+
+git push origin v1.2
+Enumerating objects: 1, done.
+Counting objects: 100% (1/1), done.
+Writing objects: 100% (1/1), 161 bytes | 4.00 KiB/s, done.
+Total 1 (delta 0), reused 0 (delta 0)
+To https://github.com/randyajackson/git_practice.git
+ * [new tag]         v1.2 -> v1.2
+
+If you have a lot of tags that you want to push up at once, you can also use the
+ --tags option to the git push command. This will transfer all of your tags to 
+the remote server that are not already there.
+
+git push origin --tags
+Counting objects: 1, done.
+Writing objects: 100% (1/1), 160 bytes | 0 bytes/s, done.
+Total 1 (delta 0), reused 0 (delta 0)
+To git@github.com:schacon/simplegit.git
+ * [new tag]         v1.4 -> v1.4
+ * [new tag]         v1.4-lw -> v1.4-lw
+
+To delete a tag on your local repository, you can use git tag -d <tagname>.
+
+ git tag -d v1.4-lw
+Deleted tag 'v1.4-lw' (was e7d5add)
+
+this does not remove the tag from any remote servers
+git push origin :refs/tags/v1.4-lw
+To /git@github.com:schacon/simplegit.git
+ - [deleted]         v1.4-lw
+
+
+more intuitive way:
+git push origin --delete <tagname>
+
+checking out versions
+-----------------
+git checkout 2.0.0
+Note: checking out '2.0.0'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -b with the checkout command again. Example:
+
+  git checkout -b <new-branch>
+
+HEAD is now at 99ada87... Merge pull request #89 from schacon/appendix-final
+
+In “detached HEAD” state, if you make changes and then create a commit, 
+the tag will stay the same, but your new commit won’t belong to any branch
+ and will be unreachable, except by the exact commit hash.
+
+if you need to make changes you will generally want to create a branch:
+git checkout -b version2 v2.0.0
+Switched to a new branch 'version2'
+
+------------------------------------
+an alias is like a variable name for a command:
+
+$ git config --global alias.co checkout
+$ git config --global alias.br branch
+$ git config --global alias.ci commit
+$ git config --global alias.st status
+
+This means that, for example, instead of typing git commit, you just need to type git ci
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
