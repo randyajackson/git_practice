@@ -29,3 +29,212 @@ a branch in Git is a moveable pointer to one of these commits.
 
 Default branch in Git = Master
 
+As you make commits, you are given a master branch that points to the last commit you made.
+
+Creating a new branch:
+git branch <name>
+
+(i wrote git branch development)
+this creates a pointer to the same commit that you are currently on.
+
+both master and development are pointing to commit (2ac53b6)
+
+How does git know which branch you are on?
+It stores a pointer called HEAD
+HEAD is a pointer to the local branch that you are currently on.
+
+git branch development only created the branch but did not switch to the branch
+
+Shows the commit pointers currently in use
+
+git log --oneline --decorate
+2ac53b6 (HEAD -> master, origin/master, development) adding note files
+0fd1ec1 (tag: v1.2) second commit
+00a7e78 (tag: v1.0, second/master) initial commit
+
+to switch to an existing branch, use the git checkout command
+
+git checkout development
+Switched to branch 'development'
+
+This moves the HEAD to point to the development branch
+
+
+before git checkout development:
+					             HEAD
+					             master
+00a7e78 (initial commit) -> 0fd1ec1 (second commit) -> 2ac53b6 (adding note files)
+					             development
+
+after git checkout development:
+			             
+					             master
+00a7e78 (initial commit) -> 0fd1ec1 (second commit) -> 2ac53b6 (adding note files)
+					             development
+					             HEAD
+
+after creating development change.txt and committing while development branch is selected:
+
+
+					             master
+00a7e78 (initial commit) -> 0fd1ec1 (second commit) -> 2ac53b6 (adding note files) -> ba8c830 (change made on development branch)
+					             			             development
+					             			             HEAD
+
+development branch has moved forward, master branch still points to commit at the point of creating the development branch
+
+git checkout master again
+
+you will see that development test text file now disappears, as the state is reverted to the HEAD commit pointer which is before development
+branch is created
+
+when you switch branches in Git, files in your working directory will change
+
+created "file_from_diverging.txt" with master branch selected
+
+with master branch selected:
+git log --oneline --decorate
+7726f95 (HEAD -> master) diverging development and master
+2ac53b6 (origin/master) adding note files
+0fd1ec1 (tag: v1.2) second commit
+00a7e78 (tag: v1.0, second/master) initial commit
+
+with development branch selected:
+git log --oneline --decorate
+ba8c830 (HEAD -> development) change made on development branch
+2ac53b6 (origin/master) adding note files
+0fd1ec1 (tag: v1.2) second commit
+00a7e78 (tag: v1.0, second/master) initial commit
+
+now the project history has diverged
+
+the work in both branches is now isolated
+file_from_diverging.txt is added in master and development change.txt is located in devleopment
+
+you can now switch back and forth between them and merge when you are ready
+
+									HEAD(if master branch is collected)
+									master
+								          ->    7726f95 (diverging development and master)
+00a7e78 (initial commit) -> 0fd1ec1 (second commit) -> 2ac53b6 (adding note files)
+								          ->    ba8c830 (change made on development branch)
+									development
+
+git log --oneline --decorate --graph --all 
+will show you the above graph
+
+to create a new branch and switch to it automatically
+checkout -b <newbranchname>
+
+checkout -b is short for:
+$ git branch <newbranchname>
+$ git checkout <newbranchname>
+
+if you switch branches and have uncommitted changes that conflict with the branch that you are switching to it wont let you switch branches
+
+to merge branches, use the git merge comand
+
+git checkout master
+Switched to branch 'master'
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+git merge development
+Merge made by the 'recursive' strategy.
+ development change.txt | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 development change.txt
+
+when you try to merge one commit with a commit that can be reached by following the first commit’s history, 
+Git simplifies things by moving the pointer forward because there is no divergent work to merge together 
+— this is called a “fast-forward.”
+
+git push
+Enumerating objects: 7, done.
+Counting objects: 100% (7/7), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (6/6), done.
+Writing objects: 100% (6/6), 634 bytes | 17.00 KiB/s, done.
+Total 6 (delta 4), reused 0 (delta 0)
+remote: Resolving deltas: 100% (4/4), completed with 1 local object.
+To https://github.com/randyajackson/git_practice.git
+   2ac53b6..b28a848  master -> master
+
+git branch -d development
+used to delete a branch
+
+git branch to show list of branches
+
+
+merge conflicts
+------------
+
+create a new file 
+changeIssueBetweenBranches.txt
+in master branch - > commit
+
+switch to development and make change to 
+changeIssueBetweenBranches.txt
+in development branch - > commit
+
+switch to master branch
+
+git merge development
+CONFLICT (add/add): Merge conflict in changeIssueBetweenBranches.txt
+Auto-merging changeIssueBetweenBranches.txt
+Automatic merge failed; fix conflicts and then commit the result.
+
+if you need to see which files are unmerged use "git status"
+
+if you open 
+changeIssueBetweenBranches.txt
+with vscode you see:
+
+<<<<<<< HEAD
+This is the change in master
+=======
+This is a change in development.
+>>>>>>> development
+
+the version in HEAD (current branch in checkout) 
+in otder to resolve you have to either 
+choose one side or the other
+or
+metge the contents
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
