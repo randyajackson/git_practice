@@ -200,7 +200,329 @@ the version in HEAD (current branch in checkout)
 in otder to resolve you have to either 
 choose one side or the other
 or
-metge the contents
+merge the contents
+
+can use git mergetool
+for making merges
+
+git branch shows a list of branches
+
+git branch -v shows last commit on each branch
+
+git branch --merged
+
+branches on this list without * are ok to be deleted
+
+git branch --no-merged
+
+shows branches that contain work and have not merged yet into the branch that you are on
+
+branching workflows
+--
+long running branches
+leave branches open as they are easy to merge
+
+having only code that is entirely stable in the master branch
+
+branches are pointers in the lines of commits.
+the stable branches are farther down the line in commit history and the newest are farther up
+
+master
+1
+development
+2>3>4
+hotfix
+5>6
+
+merge hotfix into development
+2>3>4>5>6
+
+merge development into master
+1>2>3>4>5>6 HEAD
+
+topic branches
+---
+
+short lived branch for a single feature
+
+merging and branching is all done in your local git repository without interacting with the server
+
+remote branches
+---
+
+git ls-remote [remote]
+or
+git remote show [remote]
+
+this is access to the state of remote branches, they are local and don't move
+if you want to see what the master branch on your origin remote looked like you would check the origin/master branch
+
+you have a local git server on your network git.ourcompany.com
+
+if you clone from this it pulls down:
+names it origin
+pointer to where master branch is
+names it origin/master locally
+gives you your own master branch = origin's master branch
+
+git clone -o production would name "origin" as "production"
+
+if you do some work to the master branch and someone else pushes to master on the server
+your histories move forward differently
+if you don't contact the server, your origin/master pointer doesnt move
+
+git fetch <remote> will synchronize with the remote
+
+---
+remote server is git.team1.ourcompany.com
+git remote add teamone git://git.team1.ourcompany.com
+
+will allow you to refer to the url as teamone
+git fetch teamone will work
+
+so git.ourcompany.com is the main remote
+teamone git://git.team1.ourcompany.com is a remote of the main remote
+you have remoted both
+
+say you have a branch named serverfix that you want to work with others
+you can do 
+git push <remote> <branch>
+
+say someone else did serverfix and you want to merge it into your working branch,
+you can do
+merge origin/serverfix
+
+git checkout -b serverfix origin/serverfix
+
+this gives you a local branch that starts where origin/serverfix is
+
+tracking branches are local branches that have a direct relationship to a remote branch
+
+when you clone a repository it creates a master branch that tracks origin/master
+
+git checkout -b <branch> <remote> / <branch> sets up an additional tracking branch
+
+///////////////////////////////////////////////////////////////////////////////
+
+git fetch vs git pull
+---------------
+
+fetch retrieves any commits, tags, branches and files from a remote repository
+does NOT affect your local repo
+
+git pull is actually git fetch and git merge
+does affect your local repo
+///////////////////////////////////////////////////////////////////////////////
+
+tracking branches
+--------------
+When you clone a repository, it generally automatically creates a master branch that tracks origin/master. 
+
+git branch -vv
+list out local branches with more information including what each branch is tracking and if your local branch is ahead, behind or both
+
+git branch -vv
+  iss53     7e424c3 [origin/iss53: ahead 2] forgot the brackets
+  master    1ae2a45 [origin/master] deploying index fix
+* serverfix f8674d9 [teamone/server-fix-good: ahead 3, behind 1] this should do it
+  testing   5ea463a trying something new
+
+iss53 is tracking origin/iss53 and is "ahead" by 2 which means:
+you have 2 commits locally that are not pushed to the server
+
+origin/master is being tracked and is up to date
+
+serverfix is tracking server-fix-good branch on the teamone server and is ahead by 3 and behind by 1
+one commit on the server that is not merged yet
+3 commits on local repo that are not pushed yet
+
+these numbers come from the last time you interacted with the server
+
+git fetch --all; git branch -vv
+will get you the most up to date numbers
+
+using git fetch and git merge explicitly is more concrete than just using git pull
+
+now you're done with the serverfix remote branch
+git push origin --delete serverfix
+
+deletes the remote branch (removes the pointer from the server)
+
+rebasing
+-------
+
+There are 2 main ways to integrate changes from one branch into another
+merge and rebase
+
+
+merging***
+
+           <4 (experiment)
+0<1<2
+           <3 (master)
+before merge
+
+           <4<(experiment)
+0<1<2<3<5 (master)
+after merge
+
+3 and 4 are merged into 5
+
+rebasing***
+
+you can take the patch of the change in 4 and reapply it on top of 3
+
+$ git checkout experiment
+$ git rebase master
+First, rewinding head to replay your work on top of it...
+Applying: added staged command
+
+           <(removed: 4)
+0<1<2<3<4 (4: experiment)
+             (3: master)
+
+goes to the common ancestor of the two branches
+gets the differences by each commit you are currently on
+save those differences to temporary files
+reset the current branch to the branch you are rebasing onto
+apply each change in turn
+
+now go back to master branch and do a fast-forward merge
+$ git checkout master
+$ git merge experiment
+
+	  experiment
+0<1<2<3<4
+	  master
+
+4 is now = to 5 from merge
+rebasing makes a cleaner history
+
+usually used to mkae sure your commits apply cleanly on a remote branch
+
+rebasing replays changes from on line of work onto another in the order introduced
+merging takes the endpoints and merges them together
+
+
+1<2<5<6 master
+       <3<4<10 server
+             <8<9 client
+
+say you want to merge client changes but not server
+
+git rebase --onto master server client
+
+will replay the changes from client onto master
+
+now go back to master branch and do a fast-forward merge
+$ git checkout master
+$ git merge experiment
+
+1<2<5<6<8<9 master & client
+       <3<4<10 server
+
+now you want to rebase the server branch
+
+git rebase master server
+
+Then, you can fast-forward the base branch (master):
+$ git checkout master
+$ git merge server
+
+remove client and server branches
+$ git branch -d client
+$ git branch -d server
+
+1<2<5<6<8<9<3<4<10 master
+
+*******************************
+WARNING ABOUT REBASE
+Do not rebase commits that exist outside your repository and people may have based work on them.
+******************************
+
+When you rebase stuff, you’re abandoning existing commits and creating new ones that are similar but different.
+
+If you push commits somewhere and others pull them down and base work on them, 
+and then you rewrite those commits with git rebase and push them up again, 
+your collaborators will have to re-merge their work and things will get messy when you try to pull their work back into yours.
+
+Say you clone and do some work
+Another person clones and does some work but rebases
+Your commits now point to states that have been rebased
+
+If you pull down work that was rewritten and rebase it on top of the new commits from your partner, 
+Git can often successfully figure out what is uniquely yours and apply them back on top of the new branch.
+
+instead of merging, if we do :
+
+git rebase teamone/master
+
+Determine what work is unique to our branch (C2, C3, C4, C6, C7)
+Determine which are not merge commits (C2, C3, C4)
+Determine which have not been rewritten into the target branch (just C2 and C3, since C4 is the same patch as C4')
+Apply those commits to the top of teamone/master
+
+
+If you only ever rebase commits that have never left your own computer, you’ll be just fine.
+If you rebase commits that have been pushed, but that no one else has based commits from, you’ll also be fine.
+If you rebase commits that have already been pushed publicly, and people may have based work on those commits,
+ then you may be in for some frustrating trouble, and the scorn of your teammates.
+
+those who are remotely working on your branch need to run 
+git pull --rebase 
+to keep the state current before you perform a rebase or they will lose their work
+
+differences between merge and rebase are apparent in the history
+rebase will be more linear and less noisy
+merge will display more information but will introduce more noise
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
