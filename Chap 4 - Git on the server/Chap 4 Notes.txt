@@ -1,0 +1,28 @@
+Although you can technically push changes to and pull changes from individuals' repositories,
+ doing so is discouraged because you can fairly easily confuse what they’re working on if you’re not careful.
+
+A remote repository is generally a bare repository — a Git repository that has no working directory.
+
+a bare repository is the contents of your project’s .git directory and nothing else
+
+Git can use four distinct protocols to transfer data: Local, HTTP, Secure Shell (SSH) and Git
+
+Local Protocol
+ if everyone on your team has access to a shared filesystem such as an NFS mount, 
+or in the less likely case that everyone logs in to the same computer
+
+If you have a shared mounted filesystem, then you can clone, push to, and pull from a local file-based repository.
+
+to clone a local repository, you can run something like this:
+
+git clone /srv/git/project.git
+or
+git clone file:///srv/git/project.git
+
+To add a local repository to an existing Git project, you can run something like this:
+git remote add local_proj /srv/git/project.git
+
+Then, you can push to and pull from that remote via your new remote name local_proj as though you were doing so over a network.
+
+Pros:
+simple and uses exisiting file permissions and network access
