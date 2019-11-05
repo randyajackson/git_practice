@@ -7,8 +7,9 @@ a bare repository is the contents of your project’s .git directory and nothing
 
 Git can use four distinct protocols to transfer data: Local, HTTP, Secure Shell (SSH) and Git
 
-Local Protocol
- if everyone on your team has access to a shared filesystem such as an NFS mount, 
+Local Protocol ****************************
+ 
+if everyone on your team has access to a shared filesystem such as an NFS mount, 
 or in the less likely case that everyone logs in to the same computer
 
 If you have a shared mounted filesystem, then you can clone, push to, and pull from a local file-based repository.
@@ -26,3 +27,27 @@ Then, you can push to and pull from that remote via your new remote name local_p
 
 Pros:
 simple and uses exisiting file permissions and network access
+
+stick the bare repository copy somewhere everyone has shared
+access to and set the read/write permissions as you would for any other shared directory
+
+git pull /home/john/project is often easier than them pushing to a remote
+
+Cons:
+Share access is more difficult to set up and reach from multiple locations other than local network access
+
+no protection against accidental damage
+could corrupt the repository
+
+HTTP Protocol **********************************
+
+simpler for the user and smarter about how it communicates
+
+Smart HTTP
+
+operates very similarly to the SSH or Git protocols but runs over standard HTTPS ports 
+and can use various HTTP authentication mechanisms, meaning it’s often easier 
+on the user than something like SSH, since you can use things like username/password 
+authentication rather than having to set up SSH keys.
+
+
