@@ -50,4 +50,108 @@ and can use various HTTP authentication mechanisms, meaning it’s often easier
 on the user than something like SSH, since you can use things like username/password 
 authentication rather than having to set up SSH keys.
 
+Dumb HTTP
+
+The beauty of Dumb HTTP is the simplicity of setting it up
+all you have to do is put a bare Git repository under your HTTP document root and set up a specific post-update hook, and you’re done
+To allow read access to your repository over HTTP, do something like this:
+$ cd /var/www/htdocs/
+$ git clone --bare /path/to/git_project gitproject.git
+$ cd gitproject.git
+$ mv hooks/post-update.sample hooks/post-update
+$ chmod a+x hooks/post-update
+
+The post-update hook that comes with Git by default runs the 
+appropriate command (git update-server-info) to make HTTP fetching and cloning work properly.
+
+other people can clone via something like
+git clone https://example.com/gitproject.git
+
+we’re using the /var/www/htdocs path that is common for Apache setups, but you can use any static web server
+just put the bare repository in its path
+The Git data is served as basic static files
+
+PROs:
+The simplicity of having a single URL for all types of access and having the server prompt only when
+ authentication is needed makes things very easy for the end user.
+
+Being able to authenticate with a username and password is also a big advantage over SSH, since users don’t 
+have to generate SSH keys locally and upload their public key to the server before being able to interact with it
+
+CONs:
+Git over HTTPS can be a little more tricky to set up compared to SSH on some servers.
+
+If you’re using HTTP for authenticated pushing, providing your credentials is sometimes more complicated than using keys over SSH.
+
+SSH Protocol********************************************
+
+To clone a Git repository over SSH, you can specify an ssh:// URL like this:
+$ git clone ssh://[user@]server/project.git
+Or you can use the shorter scp-like syntax for the SSH protocol:
+$ git clone [user@]server:project.git
+
+PROs:
+
+SSH is relatively easy to set up
+
+ access over SSH is secure — all data transfer is encrypted and authenticated
+
+SSH is efficient, making the data as compact as possible before transferring it.
+
+CONs:
+
+doesn’t support anonymous access to your Git repository
+
+If you’re using SSH, people must have SSH access to your machine, even in a read-only capacity, which doesn’t make 
+SSH conducive to open source projects for which people might simply want to clone your repository to examine it.
+
+If you want to allow anonymous read-only access to your projects and also want to use SSH, you’ll have to 
+set up SSH for you to push over but something else for others to fetch from.
+
+Git Protocol********************************************
+
+it listens on a dedicated port (9418) that provides a service similar to the SSH protocol, but with absolutely no authentication
+
+In order for a repository to be served over the Git protocol, you must create a git-daemon-export-ok file 
+— the daemon won’t serve a repository without that file in it — but, other than that, there is no security.
+
+there is generally no pushing over this protocol
+
+You can enable push access but, given the lack of authentication, anyone on the internet who finds your 
+project’s URL could push to that project.
+
+PROs:
+
+fastest network transfer protocol available
+
+CONs:
+
+ lack of authentication
+
+It’s also probably the most difficult protocol to set up. It must run its own daemon, which requires xinetd or systemd 
+configuration or the like, which isn’t always a walk in the park. It also requires firewall access to port 9418, which isn’t 
+a standard port that corporate firewalls always allow. 
+
+-----------------------------------------------------------------------
+
+Getting Git on a server
+
+Look up tutorials on modern approaches
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
