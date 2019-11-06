@@ -1,0 +1,18 @@
+Distributed Git
+
+Distributed Workflows
+
+Centralized Workflow************************
+
+Has one repository, can accept code, and everyone syncs with it.
+
+			repo	
+	^		^		^
+	developer		developer		developer
+
+If 2 developers clone from the repo at the same time:
+- the first one pushes changes without issue
+- the second one must merge to first one's work before pushing
+
+Integration-Manager Workflow***************
+
