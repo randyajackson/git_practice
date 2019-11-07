@@ -41,4 +41,381 @@ variant of a multiple-repository workflow
 
 Various integration managers are in charge of certain parts of the repository; they’re called lieutenants.
 
+All the lieutenants have one integration manager known as the benevolent dictator
+
+The benevolent dictator pushes from his directory to a reference repository from which all the collaborators need to pull.
+
+1] Regular developers work on their topic branch and rebase their work on top of master. 
+The master branch is that of the reference repository to which the dictator pushes.
+
+2] Lieutenants merge the developers' topic branches into their master branch.
+
+3] The dictator merges the lieutenants' master branches into the dictator’s master branch.
+
+4] Finally, the dictator pushes that master branch to the reference repository so the other developers can rebase on it.
+
+not common workflow
+
+Contributing to a project*********************************
+
+The first variable is active contributor count — how many users are actively contributing code to this project, and how often?
+
+Commit Guidelines
+--
+ Having a good guideline for creating commits and sticking to it makes working with Git and collaborating with others a lot easier. 
+
+Check tips in Documentation/SubmittingPatches file.
+
+submissions should not contain any whitespace errors
+
+before you commit, run git diff --check
+
+try to make each commit a logically separate changeset. If you can, try to make your changes digestible
+
+split your work into at least one commit per issue with a useful message per commit
+
+try to use git add --patch to partially stage files
+
+This approach also makes it easier to pull out or revert one of the changesets if you need to later.
+
+Example commit message:
+
+Capitalized, short (50 chars or less) summary
+
+More detailed explanatory text, if necessary.  Wrap it to about 72
+characters or so.  In some contexts, the first line is treated as the
+subject of an email and the rest of the text as the body.  The blank
+line separating the summary from the body is critical (unless you omit
+the body entirely); tools like rebase can get confused if you run the
+two together.
+
+Write your commit message in the imperative: "Fix bug" and not "Fixed bug"
+or "Fixes bug."  This convention matches up with commit messages generated
+by commands like git merge and git revert.
+
+Further paragraphs come after blank lines.
+
+- Bullet points are okay, too
+
+- Typically a hyphen or asterisk is used for the bullet, followed by a
+  single space, with blank lines in between, but conventions vary here
+
+- Use a hanging indent
+
+shows up better in git log --no-merges
+
+Private small team
+--
+merges happen client-side rather than on the server at commit time.
+
+Example:
+
+1)
+John, clones the repository, makes a change, and commits locally.
+
+git clone john@githost:simplegit.git
+Cloning into 'simplegit'...
+cd simplegit/
+vim lib/simplegit.rb
+git commit -am 'remove invalid default value'
+
+2)
+Jessica, does the same thing — clones the repository and commits a change:
+$ git clone jessica@githost:simplegit.git
+Cloning into 'simplegit'...
+...
+$ cd simplegit/
+$ vim TODO
+$ git commit -am 'add reset task'
+
+3)
+Jessica pushes her work to the server, which works just fine
+$ git push origin master
+...
+To jessica@githost:simplegit.git
+   1edee6b..fbff5bc  master -> master
+
+^
+The basic format is <oldref>..<newref> fromref -> toref
+
+fromref is the name of the local reference being pushed, 
+and toref is the name of the remote reference being updated
+
+4)
+John makes some changes, commits them to his local repository, and tries to push them to the same server
+
+git push origin master
+To john@githost:simplegit.git
+ ! [rejected]        master -> master (non-fast forward)
+error: failed to push some refs to 'john@githost:simplegit.git'
+
+John’s push fails because of Jessica’s earlier push of her changes
+
+you must first merge the commits locally.
+
+ John must first fetch Jessica’s upstream changes and merge them into his local repository before he will be allowed to push
+
+$ git fetch origin
+$ git merge origin/master
+Test to make sure changes didn't break anything
+$ git push origin master
+
+5)
+In the meantime, Jessica has created a new topic branch called issue54 with 3 commits to the branch
+Has not fetched John's changes yet.
+
+Jessica learns that John has pushed some new work to the server and she wants to take a look at it
+$ git fetch origin
+
+6)
+Jessica thinks her topic branch is ready, but she wants to know what 
+part of John’s fetched work she has to merge into her work so that she can push. 
+
+$ git log --no-merges issue54..origin/master
+commit 738ee872852dfaa9d6634e0dea7a324040193016
+Author: John Smith <jsmith@example.com>
+Date:   Fri May 29 16:01:27 2009 -0700
+
+   remove invalid default value
+
+log filter that asks Git to display only those commits that are on the latter branch (in this case origin/master) 
+that are not on the first branch (in this case issue54)
+
+this commit has not yet been merged
+
+Now, Jessica can merge her topic work into her master branch, 
+merge John’s work (origin/master) into her master branch, 
+and then push back to the server again.
+
+ Jessica switches back to her master branch in preparation for integrating all this work
+$ git checkout master
+Switched to branch 'master'
+Your branch is behind 'origin/master' by 2 commits, and can be fast-forwarded.
+
+Jessica can merge either origin/master or issue54
+they’re both upstream, so the order doesn’t matter
+
+no matter which order she chooses; only the history will be different
+
+merges issue54 first
+
+$ git merge issue54
+Updating fbff5bc..4af4298
+Fast forward
+ README           |    1 +
+ lib/simplegit.rb |    6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletions(-)
+
+No problems occur; as you can see it was a simple fast-forward merge.
+
+Now she merges withJohn's fetched work in origin/master
+
+$ git merge origin/master
+Auto-merging lib/simplegit.rb
+Merge made by the 'recursive' strategy.
+ lib/simplegit.rb |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+$ git push origin master
+...
+To jessica@githost:simplegit.git
+   72bbc59..8059c15  master -> master
+
+You work for a while (generally in a topic branch), and merge that work into your master branch when it’s ready to be integrated.
+When you want to share that work, you fetch and merge your master from origin/master if it has changed,
+and finally push to the master branch on the server.
+
+=============privateSmallTeam.png=================
+
+Private Managed Team ****************************
+
+John and Jessica are working together on one feature (call this “featureA”), 
+while Jessica and a third developer, Josie, are working on a second (say, “featureB”)
+
+company is using a type of integration-manager workflow where the work of the individual groups is integrated only by certain engineers
+the master branch of the main repo can be updated only by those engineers.
+
+Jessica works on featureA first
+$ git checkout -b featureA
+Switched to a new branch 'featureA'
+$ vim lib/simplegit.rb
+$ git commit -am 'add limit to log function'
+[featureA 3300904] add limit to log function
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+Jessica does not have push access.
+
+She needs to share her progress with John.
+
+She can't push to the master repository branch so she pushes to another branch.
+
+$ git push -u origin featureA
+...
+To jessica@githost:simplegit.git
+ * [new branch]      featureA -> featureA
+
+Jessica emails John to tell him that she’s pushed some work into a branch named featureA and he can look at it now. 
+While she waits for feedback from John, Jessica decides to start working on featureB with Josie.
+
+To begin, she starts a new feature branch, basing it off the server’s master branch
+
+$ git fetch origin
+$ git checkout -b featureB origin/master
+Switched to a new branch 'featureB'
+
+Now Jessica commits to the featureB branch:
+
+$ vim lib/simplegit.rb
+$ git commit -am 'made the ls-tree function recursive'
+[featureB e5b0fdc] made the ls-tree function recursive
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+$ vim lib/simplegit.rb
+$ git commit -am 'add ls-files'
+[featureB 8512791] add ls-files
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+She’s ready to push her work, but gets an email from Josie that a branch with some initial “featureB” 
+work on it was already pushed to the server as the featureBee branch. 
+
+Jessica needs to merge those changes with her own before she can push her work to the server.
+
+$ git fetch origin
+...
+From jessica@githost:simplegit
+ * [new branch]      featureBee -> origin/featureBee
+
+
+Assuming Jessica is still on her checked-out featureB branch, she can now merge Josie’s work into that branch with git merge:
+
+$ git merge origin/featureBee
+Auto-merging lib/simplegit.rb
+Merge made by the 'recursive' strategy.
+ lib/simplegit.rb |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+Jessica wants to push all the merged "featureB" work back to the server.
+
+She doesn't want to push just her featureB branch but also the featureBee branch.
+
+She pushes featureB into featureBee
+
+$ git push -u origin featureB:featureBee
+...
+To jessica@githost:simplegit.git
+   fba9af8..cd685d1  featureB -> featureBee
+
+This is called a refspec
+
+the -u flag; this is short for --set-upstream
+
+Jessica gets an e-mail from John asking her to look at featureA as he has pushed changes
+
+Jessica fetches to see these changes
+
+$ git fetch origin
+...
+From jessica@githost:simplegit
+   3300904..aad881d  featureA   -> origin/featureA
+
+To see a log of John's changes
+she compares the nely-fetched featureA with her local copy of the same branch
+
+git log featureA..origin/featureA
+commit aad881d154acdaeb2b6b18ea0e827ed8a6d671e6
+Author: John Smith <jsmith@example.com>
+Date:   Fri May 29 19:57:33 2009 -0700
+
+    changed log output to 30 from 25
+
+Now she can merge John's new work into her local featureA branch
+
+$ git checkout featureA
+Switched to branch 'featureA'
+$ git merge origin/featureA
+Updating 3300904..aad881d
+Fast forward
+ lib/simplegit.rb |   10 +++++++++-
+1 files changed, 9 insertions(+), 1 deletions(-)
+
+now she can make whichever changes to the merged content 
+commit them to her local featureA branch and push the result back to the server
+
+$ git commit -am 'small tweak'
+[featureA 774b3ed] small tweak
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+$ git push
+...
+To jessica@githost:simplegit.git
+   3300904..774b3ed  featureA -> featureA
+
+At this point featureA and featureBee are ready for integration into production.
+
+The main integrator pushes to production and after a fetch the changes are reflected.
+===================privateManagedTeam.png=======================
+
+Forked Public Project ****************************
+Contributing to public projects is a bit different.
+you have to get the work to the maintainers some other way if you dont have permissions to push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
