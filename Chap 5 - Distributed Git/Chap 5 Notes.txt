@@ -357,6 +357,180 @@ Forked Public Project ****************************
 Contributing to public projects is a bit different.
 you have to get the work to the maintainers some other way if you dont have permissions to push
 
+First example uses forking
+
+Second example is sending patches via e-mail
+
+First clone the main repository
+create a topic branch for the patch
+do your work there
+
+$ git clone <url>
+$ cd project
+$ git checkout -b featureA
+  ... work ...
+$ git commit
+  ... work ...
+$ git commit
+
+use rebase -i to squash your work down to a single commit, or rearrange the work
+in the commits to make the patch easier for the maintainer to review
+
+When your branch work is finished and you’re ready to contribute it back to the maintainers, 
+go to the original project page and click the “Fork” button
+
+You then need to add this repository URL as a new remote of your local repository; in this example, let’s call it myfork:
+git remote add myfork <url>
+
+You then need to push your new work to this repository.
+
+It’s easiest to push the topic branch you’re working on to your forked repository, rather than
+merging that work into your master branch and pushing that.
+
+if your work isn’t accepted or is cherry-picked, you don’t have to rewind your master branch
+
+If the maintainers merge, rebase, or cherry-pick your work, you’ll eventually get it back via pulling from their repository anyhow.
+
+Pushing your work:
+git push -u myfork featureA
+
+then you need to notify the maintainers of the original project that you have work you’d like them to merge.
+
+This is called a pull request
+
+The git request-pull command takes the base branch into which you want your topic branch pulled and 
+the Git repository URL you want them to pull from, and produces a summary of all the changes you’re asking to be pulled. 
+
+$ git request-pull origin/master myfork
+The following changes since commit 1edee6b1d61823a2de3b09c160d7080b8d1b3a40:
+Jessica Smith (1):
+        added a new function
+
+are available in the git repository at:
+
+  git://githost/simplegit.git featureA
+
+Jessica Smith (2):
+add limit to log function
+      change log output to 30 from 25
+
+ lib/simplegit.rb |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
+
+If you are not the maintainer
+it is easier to have a branch like master always track origin/master and do your work in topic branches that
+can be discarded if they're rejected.
+
+For example, if you want to submit a second topic of work to the project, don’t continue working on the topic branch 
+you just pushed up — start over from the main repository’s master branch:
+
+$ git checkout -b featureB origin/master
+  ... work ...
+$ git commit
+$ git push myfork featureB
+$ git request-pull origin/master myfork
+  ... email generated request pull to maintainer ...
+$ git fetch origin
+
+If say the maintainer pulled in some of your patches but one did not cleanly merge, 
+you can rebase that branch on top of origin/master and resolve issues and resubmit
+
+git-rebase - Reapply commits on top of another base tip
+
+$ git checkout featureA
+$ git rebase origin/master
+$ git push -f myfork featureA
+
+Put your feature onto origin/master and fork again
+
+you need -f to replace the featureA branch
+
+Maintainer wants changes to the second branch.
+
+You start a new branch based off the current origin/master branch, squash the featureB changes there, resolve any conflicts, 
+make the implementation change, and then push that as a new branch:
+
+$ git checkout -b featureBv2 origin/master
+$ git merge --squash featureB
+  ... change implementation ...
+$ git commit
+$ git push myfork featureBv2
+
+The --squash option takes all the work on the merged branch and squashes
+ it into one changeset producing the repository state as if a real merge happened, without actually making a merge commit.
+
+This means your future commit will have one parent only and allows you to introduce all the changes from another
+ branch and then make more changes before recording the new commit
+
+ --no-commit option can be useful to delay the merge commit in case of the default merge process
+
+Now notify the maintainer that you’ve made the requested changes, and that they can find those changes in your featureBv2 branch
+
+Public Project over Email******************************************
+
+you create topic branches for each patch series you work on. 
+The difference is how you submit them to the project. Instead of forking the project and pushing to your own
+ writable version, you generate email versions of each commit series and email them to the developer mailing list:
+
+$ git checkout -b topicA
+  ... work ...
+$ git commit
+  ... work ...
+$ git commit
+
+Now you have two commits that you want to send to the mailing list. 
+You use git format-patch to generate the mbox-formatted files that you can email to the list 
+turns each commit into an email message
+
+$ git format-patch -M origin/master
+0001-add-limit-to-log-function.patch
+0002-changed-log-output-to-30-from-25.patch
+
+format-patch command prints out the names of the patch files it creates
+-M switch tells Git to look for renames
+
+...read into if needed
+
+Maintaining a Projct*************************************************
+
+This can consist of accepting and applying patches generated via format-patch and emailed to you, or integrating
+ changes in remote branches for repositories you’ve added as remotes to your project
+
+When you’re thinking of integrating new work, it’s generally a good idea to try it out in a topic branch
+
+As you’ll remember, you can create the branch based off your master branch like this:
+$ git branch sc/ruby_client master
+
+Checking Out Remote Branches
+
+if Jessica sends you an email saying that she has a great new feature in the ruby-client branch of her repository,
+ you can test it by adding the remote and checking out that branch locally:
+
+$ git remote add jessica git://github.com/jessica/myproject.git
+$ git fetch jessica
+$ git checkout -b rubyclient jessica/ruby-client
+
+
+$ git log contrib --not master
+
+To see what changes each commit introduces, remember that you can pass the -p 
+option to git log and it will append the diff introduced to each commit.
+
+To see a full diff of what would happen if you were to merge this topic branch with another branch
+$ git diff master
+
+more reading if needed....
+
+Tagging Your Releases**************************************
+
+
+
+
+
+
+
+
+
 
 
 
