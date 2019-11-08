@@ -1,0 +1,109 @@
+Git is smart enough to figure out what commit you’re referring to
+ if you provide the first few characters of the SHA-1 hash
+*at least 4 characters
+
+$ git log
+commit 734713bc047d87bf7eac9674765ae793478c50d3
+Author: Scott Chacon <schacon@gmail.com>
+Date:   Fri Jan 2 18:32:33 2009 -0800
+
+    fixed refs handling, added gc auto, updated tests
+
+commit d921970aadf03b3cf0e71becdaab3147ba71cdef
+Merge: 1c002dd... 35cfb2b...
+Author: Scott Chacon <schacon@gmail.com>
+Date:   Thu Dec 11 15:08:43 2008 -0800
+
+    Merge commit 'phedders/rdocs'
+
+commit 1c002dd4b536e7479fe34593e72e6c6c1819e53b
+Author: Scott Chacon <schacon@gmail.com>
+Date:   Thu Dec 11 14:58:32 2008 -0800
+
+    added some blame and merge stuff
+
+In this case, say you’re interested in the commit whose hash begins with 1c002dd.... 
+You can inspect that commit with any of the following variations of git show
+ (assuming the shorter versions are unambiguous):
+
+$ git show 1c002dd4b536e7479fe34593e72e6c6c1819e53b
+$ git show 1c002dd4b536e7479f
+$ git show 1c002d
+
+rev-parse exists for lower-level operations and isn’t designed to be used in day-to-day operations
+
+Here you can run rev-parse on your branch.
+$ git rev-parse topic1
+ca82a6dff817ec66f44342007202690a93763949
+
+to see where your master branch was yesterday, you can type
+$ git show master@{yesterday}
+That would show you where tip of your master branch was yesterday.
+
+--
+
+ ^ (caret) at the end of a reference, Git resolves it to mean the parent of that commit
+
+$ git log --pretty=format:'%h %s' --graph
+* 734713b fixed refs handling, added gc auto, updated tests
+*   d921970 Merge commit 'phedders/rdocs'
+|\
+| * 35cfb2b Some rdoc changes
+* | 1c002dd added some blame and merge stuff
+|/
+* 1c36188 ignore *.gem
+* 9b29157 add open3_detach to gemspec file list
+
+$ git show HEAD^
+commit d921970aadf03b3cf0e71becdaab3147ba71cdef
+Merge: 1c002dd... 35cfb2b...
+Author: Scott Chacon <schacon@gmail.com>
+Date:   Thu Dec 11 15:08:43 2008 -0800
+
+    Merge commit 'phedders/rdocs'
+
+d921970^2 means “the second parent of d921970.”
+
+--
+
+Commit ranges
+“What work is on this branch that I haven’t yet merged into my main branch?”
+
+double-dot syntax
+asks Git to resolve a range of commits that are reachable from 
+one commit but aren’t reachable from another.
+
+A < B < E < F <-master
+          < C < D <- experiment
+
+“all commits reachable from experiment that aren’t reachable from master.”
+
+$ git log master..experiment
+D
+C
+
+$ git log experiment..master
+F
+E
+
+double dot is shorthand, can also use for multiple points
+
+$ git log refA..refB
+$ git log ^refA refB
+$ git log refB --not refA
+
+triple-dot syntax, which specifies all the commits that are reachable 
+by either of two references but not by both of them.
+
+$ git log master...experiment
+F
+E
+D
+C
+
+
+
+
+
+
+
