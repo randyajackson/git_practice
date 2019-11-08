@@ -523,6 +523,37 @@ more reading if needed....
 
 Tagging Your Releases**************************************
 
+When you’ve decided to cut a release, you’ll probably want to assign a tag so you can re-create that release at any point going forward.
+
+ git tag -s v1.5 -m 'my signed 1.5 tag'
+You need a passphrase to unlock the secret key for
+user: "Scott Chacon <schacon@gmail.com>"
+1024-bit DSA key, ID F721C45A, created 2009-02-09
+
+you can figure out which key you want by running gpg --list-keys:
+
+$ gpg --list-keys
+/Users/schacon/.gnupg/pubring.gpg
+---------------------------------
+pub   1024D/F721C45A 2009-02-09 [expires: 2010-02-09]
+uid                  Scott Chacon <schacon@gmail.com>
+sub   2048g/45D02282 2009-02-09 [expires: 2010-02-09]
+
+Then, you can directly import the key into the Git database by exporting it and piping that through git hash-object, 
+which writes a new blob with those contents into Git and gives you back the SHA-1 of the blob:
+
+$ gpg -a --export F721C45A | git hash-object -w --stdin
+659ef797d181633c87ec71ac3f9ba29fe5775b92
+
+Now that you have the contents of your key in Git, you can create a tag that points directly to it by specifying the 
+new SHA-1 value that the hash-object command gave you:
+$ git tag -a maintainer-pgp-pub 659ef797d181633c87ec71ac3f9ba29fe5775b92
+
+Now  run git push --tags
+
+If anyone wants to verify a tag, they can directly import your PGP key by pulling the blob directly out of the database and importing it into GPG
+
+$ git show maintainer-pgp-pub | gpg --import
 
 
 
