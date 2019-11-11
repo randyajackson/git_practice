@@ -101,6 +101,14 @@ E
 D
 C
 
+$ git log --left-right master...experiment
+< F
+< E
+> D
+> C
+
+Lets you see which side of the reange each commit is in.
+
 
 
 
