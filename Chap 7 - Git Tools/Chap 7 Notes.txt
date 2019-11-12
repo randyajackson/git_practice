@@ -359,6 +359,167 @@ You can withold merges from individuals without keys.
 
 Searching
 --------
+Git ships with a command called grep that allows you to easily search through any committed tree, 
+the working directory, or even the index for a string or regular expression.
+
+git grep -n <search string>
+
+prints out line numbers where the search string is located
+
+git grep summarizes the output  by showing you only which files contained
+ the search string and how many matches there were in each file with the -c option
+
+git grep -c and                                
+Chap 1 - Getting Started/Chp 1 Notes - Installing Git.txt:9                            
+ Chap 2 - Git Basics/Chp 2 Notes - Git Basics.txt:38                                     
+Chap 3 - Git branching/Chap 3 Notes.txt:53                                             
+ Chap 4 - Git on the server/Chap 4 Notes.txt:19                                          
+Chap 5 - Distributed Git/Chap 5 Notes.txt:52                                            
+Chap 6 - GitHub/Chap 6 Notes.txt:2                                                      
+Chap 7 - Git Tools/Chap 7 Notes.txt:27        
+
+git grep -p <search string> <filename> (or *.txt, *.js, etc)
+
+display the enclosing method or function for each matching string
+
+
+look for any lines that define a constant whose name contains either of the substrings “LINK” or “BUF_MAX”
+
+$ git grep --break --heading \
+    -n -e '#define' --and \( -e LINK -e BUF_MAX \) v1.8.0
+v1.8.0:builtin/index-pack.c
+62:#define FLAG_LINK (1u<<20)
+
+v1.8.0:cache.h
+73:#define S_IFGITLINK  0160000
+74:#define S_ISGITLINK(m)       (((m) & S_IFMT) == S_IFGITLINK)
+
+v1.8.0:environment.c
+54:#define OBJECT_CREATION_MODE OBJECT_CREATION_USES_HARDLINKS
+
+v1.8.0:strbuf.c
+326:#define STRBUF_MAXLINK (2*PATH_MAX)
+
+v1.8.0:symlinks.c
+53:#define FL_SYMLINK  (1 << 2)
+
+v1.8.0:zlib.c
+30:/* #define ZLIB_BUF_MAX ((uInt)-1) */
+31:#define ZLIB_BUF_MAX ((uInt) 1024 * 1024 * 1024) /* 1GB */
+
+Git Log Searching
+--------------
+
+find out when the ZLIB_BUF_MAX constant was originally introduced
+
+-S is referred to as the "pickaxe" option
+shows only commits that changed the number of occurences of the string
+
+$ git log -S ZLIB_BUF_MAX --oneline
+e01503b zlib: allow feeding more than 4GB in one go
+ef49a7a zlib: zlib can only process 4GB at a time
+
+If we look at the diff of those commits, we can see that in ef49a7a the constant was introduced and in e01503b it was modified.
+
+Line Log Searching
+---------------
+
+git log -L shows the history of a function or line of code
+
+every change made to the function git_deflate_bound in the zlib.c file
+
+$ git log -L :git_deflate_bound:zlib.c
+commit ef49a7a0126d64359c974b4b3b71d7ad42ee3bca
+Author: Junio C Hamano <gitster@pobox.com>
+Date:   Fri Jun 10 11:52:15 2011 -0700
+
+    zlib: zlib can only process 4GB at a time
+
+diff --git a/zlib.c b/zlib.c
+--- a/zlib.c
++++ b/zlib.c
+@@ -85,5 +130,5 @@
+-unsigned long git_deflate_bound(z_streamp strm, unsigned long size)
++unsigned long git_deflate_bound(git_zstream *strm, unsigned long size)
+ {
+-       return deflateBound(strm, size);
++       return deflateBound(&strm->z, size);
+ }
+
+
+commit 225a6f1068f71723a910e8565db4e252b3ca21fa
+Author: Junio C Hamano <gitster@pobox.com>
+Date:   Fri Jun 10 11:18:17 2011 -0700
+
+    zlib: wrap deflateBound() too
+
+diff --git a/zlib.c b/zlib.c
+--- a/zlib.c
++++ b/zlib.c
+@@ -81,0 +85,5 @@
++unsigned long git_deflate_bound(z_streamp strm, unsigned long size)
++{
++       return deflateBound(strm, size);
++}
++
+
+Rewriting History
+--------------
+
+you can rewrite commits that already happened so they look like they happened in a different way.
+
+you have a great deal of freedom to rewrite your history locally
+
+avoid pushing your work until you’re happy with it and ready to share it with the rest of the world.
+
+Changing the last commit
+---------------------
+
+Changing last commit MESSAGE ONLY
+
+$ git commit --amend
+
+The command above loads the previous commit message into an editor session, 
+where you can make changes to the message, save those changes and exit
+
+Changing last commit CONTENT
+
+make all changes that are meant to be changed
+
+git commit --amend
+
+replaces last comit with the updated files
+
+amending changes changes the SHA-1 of the commit
+
+To make changes beyond the last commit, use rebase*************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
