@@ -494,6 +494,13 @@ amending changes changes the SHA-1 of the commit
 
 To make changes beyond the last commit, use rebase*************************
 
+For example, if you want to change the last three commit messages
+
+$ git rebase -i HEAD~3
+
+
+
+
 
 
 
