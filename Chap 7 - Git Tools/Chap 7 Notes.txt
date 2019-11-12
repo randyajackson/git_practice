@@ -254,7 +254,131 @@ By default, git stash will stash only modified and staged tracked files.
 
 to stash all files use -a
 
---patch prompts for which changes you want to make
+--patch prompts for which changes you want to stash or keep in working directory
+
+$ git stash --patch
+diff --git a/lib/simplegit.rb b/lib/simplegit.rb
+index 66d332e..8bb5674 100644
+--- a/lib/simplegit.rb
++++ b/lib/simplegit.rb
+@@ -16,6 +16,10 @@ class SimpleGit
+         return `#{git_cmd} 2>&1`.chomp
+       end
+     end
++
++    def show(treeish = 'master')
++      command("git show #{treeish}")
++    end
+
+ end
+ test
+Stash this hunk [y,n,q,a,d,/,e,?]? y
+
+Saved working directory and index state WIP on master: 1b65b17 added the index file
+
+Creating a branch from a stash
+-----------------------
+
+If you want an easier way to test the stashed changes again, you can run git stash branch <new branchname>, 
+which creates a new branch for you with your selected branch name, checks out the commit you were on when 
+you stashed your work, reapplies your work there, and then drops the stash if it applies successfully:
+
+$ git stash branch testchanges
+M	index.html
+M	lib/simplegit.rb
+Switched to a new branch 'testchanges'
+On branch testchanges
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	modified:   index.html
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   lib/simplegit.rb
+
+Dropped refs/stash@{0} (29d385a81d163dfd45a452a2ce816487a6b8b014)
+
+Cleaning your Working Directory
+------------------------
+
+You may not want to stash some work or files in working directory but get rid of them.
+That is what git clean is for.
+
+git clean is designed to get rid of files in the working directory that are not tracked.
+
+git stash --all
+removes all untracked items but stores them in a stash.
+
+$ git clean -d -n
+Would remove test.o
+Would remove tmp/
+
+using -n runs a dry run
+ “do a dry run and tell me what you would have removed”
+
+git clean command will only remove untracked files that are not ignored
+
+-x will also delete files mentioned in the gitignore file
+
+$ git status -s
+ M lib/simplegit.rb
+?? build.TMP
+?? tmp/
+
+$ git clean -n -d
+Would remove build.TMP
+Would remove tmp/
+
+$ git clean -n -d -x
+Would remove build.TMP
+Would remove test.o
+Would remove tmp/
+
+if you don't know what git clean is going to do, run it with a -n flag to get a readout of its intentions
+
+Signing your work
+---------------
+
+ if you want to sign anything you need to get GPG configured and your personal key installed.
+
+$ gpg --list-keys
+/Users/schacon/.gnupg/pubring.gpg
+---------------------------------
+pub   2048R/0A46826A 2014-06-04
+uid                  Scott Chacon (Git signing key) <schacon@gmail.com>
+sub   2048R/874529A9 2014-06-04
+
+read if needed..........
+
+Solution to use if working on an open source product and want to verify the identities of the contributors
+
+You can withold merges from individuals without keys.
+
+Searching
+--------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
