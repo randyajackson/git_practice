@@ -1,0 +1,19 @@
+branch early and often
+
+If making a new branch:
+
+newImage
+master *
+
+on commit, master * moves forward since it is the currently selected branch
+
+git checkout <branch> selects which branch to control.
+
+git checkout -b <branchName> to create a new branch and switch to it.
+
+git merge creates a special commit that has two unique parents
+
+Rebasing essentially takes a set of commits, "copies" them, and plops them down somewhere else.
+
+Rebasing makes a linear sequence of commits. Log and history will be cleaner if used.
+
