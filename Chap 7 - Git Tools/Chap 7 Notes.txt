@@ -499,6 +499,34 @@ For example, if you want to change the last three commit messages
 $ git rebase -i HEAD~3
 
 
+Reordering Commits
+----------------
+use git log --pretty
+
+to obtain the commit hashes
+
+use git rebase -i
+
+reorder the comments in the text editor, example:
+
+change from:
+pick f7f3f6d changed my name a bit
+pick 310154e updated README formatting and added blame
+pick a5f4a0d added cat-file
+
+change to:
+pick 310154e updated README formatting and added blame
+pick f7f3f6d changed my name a bit
+
+when you close the editor the commits will change order
+
+
+
+
+
+
+
+
 
 
 
