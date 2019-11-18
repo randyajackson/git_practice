@@ -571,6 +571,94 @@ HEAD			Last commit snapshot, next parent
 Index			Proposed next commit snapshot
 Working Directory		Sandbox
 
+HEAD is the pointer to the current branch reference
+which is in turn a pointer to the last commit made on that branch.
+
+HEAD as the snapshot of your last commit on that branch
+
+----
+
+The index is your proposed next commit
+Git’s “Staging Area”
+
+
+
+----
+
+Think of the working directory as a sandbox, where you can try changes
+ out before committing them to your staging area (index) and then to history.
+
+$tree
+Folder PATH listing for volume UserData
+Volume serial number is 002A-2985
+\\slg\RedirectedFolders$.
+├───Chap 1 - Getting Started
+├───Chap 2 - Git Basics
+├───Chap 3 - Git branching
+├───Chap 4 - Git on the server
+├───Chap 5 - Distributed Git
+├───Chap 6 - GitHub
+├───Chap 7 - Git Tools
+└───learngitbranching.js.org notes
+
+----
+
+The Workflow
+
+working directory		index		HEAD
+	|<--------------|--------------- | checkout the project
+	|-------------->|		| stage files
+	|		|-------------->| commit
+
+You go into a directory with a single file in it.
+
+At this point, the file resides in the working directory.
+
+Now in the directory you call git init.
+You now have a HEAD element pointing to an unborn MASTER branch.
+
+Head and Index are both empty upon git init.
+
+Now you use git add on the directory.
+Index now has the file and working directory has a copy of the file.
+
+Now you use git commit on the directory.
+Contents of the index are now saved in a permanent snapshot.
+A commit object is created which points to that snapshot.
+Master now points to that commit.
+
+git status now shows no changes because:
+working directory = index = HEAD
+
+Now a change is made to the file.
+
+git status now shows a change since:
+working directory has v2
+index has v1
+HEAD has v1
+
+git add now shows:
+working directory has v2
+index has v2
+HEAD has v1
+
+after git commit:
+working directory has v2
+index has v2
+HEAD has v2
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
