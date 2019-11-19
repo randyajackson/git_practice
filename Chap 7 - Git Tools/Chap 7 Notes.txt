@@ -654,6 +654,18 @@ HEAD has v2
 
 This is like undoing the last commit.
 
+git reset --soft HEAD~
+points the HEAD back to where it was but does not change index or working directory
+
+git reset --mixed HEAD~
+points the HEAD to the last commit and unstages all changes, so they must be added and commited
+again
+
+
+
+
+
+
 
 
 
