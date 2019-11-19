@@ -657,9 +657,29 @@ This is like undoing the last commit.
 git reset --soft HEAD~
 points the HEAD back to where it was but does not change index or working directory
 
+affects:
+HEAD
+
+
 git reset --mixed HEAD~
 points the HEAD to the last commit and unstages all changes, so they must be added and commited
 again
+
+affects:
+HEAD
+index
+
+git reset --hard HEAD~
+points the head to the last commit and stages all changes
+
+affects:
+HEAD
+index
+Working Directory
+
+--hard is dangerous as it can delete changes in the working directory.
+
+
 
 
 
