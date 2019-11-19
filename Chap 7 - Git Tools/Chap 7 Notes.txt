@@ -647,6 +647,16 @@ working directory has v2
 index has v2
 HEAD has v2
 
+git reset will move HEAD to the version you tell it to so for example:
+working directory has v3
+index has v3
+HEAD has v2
+
+This is like undoing the last commit.
+
+
+
+
 
 
 
